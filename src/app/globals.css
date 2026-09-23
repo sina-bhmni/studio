@@ -1,0 +1,232 @@
+@import "tailwindcss";
+
+/* ------------------------------ Design Tokens ------------------------------ */
+
+:root {
+  --background: #f4f0e6;
+  --surface: #ece7d9;
+  --card: #faf7ef;
+  --foreground: #17130d;
+  --muted: #6f675b;
+  --accent: #e8490f;
+  --accent-soft: rgba(232, 73, 15, 0.12);
+  --accent-foreground: #fff7ef;
+  --border: rgba(23, 19, 13, 0.14);
+  --ring: rgba(23, 19, 13, 0.06);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --background: #0d0b08;
+  --surface: #151209;
+  --card: #171410;
+  --foreground: #f1ebe0;
+  --muted: #9b9284;
+  --accent: #ff5a1f;
+  --accent-soft: rgba(255, 90, 31, 0.14);
+  --accent-foreground: #17100a;
+  --border: rgba(241, 235, 224, 0.11);
+  --ring: rgba(241, 235, 224, 0.05);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-vazir), "Tahoma", system-ui, sans-serif;
+}
+
+/* --------------------------------- Base ------------------------------------ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "ss01" on;
+  overflow-x: clip;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted) 40%, transparent);
+  border-radius: 999px;
+  border: 2px solid var(--background);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* ------------------------------- Textures ---------------------------------- */
+
+.noise::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.grain-card {
+  position: relative;
+}
+.grain-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image: radial-gradient(
+    circle at 15% 20%,
+    color-mix(in srgb, var(--accent) 8%, transparent),
+    transparent 50%
+  );
+}
+
+/* ------------------------------- Typography -------------------------------- */
+
+.display-clip {
+  background: linear-gradient(
+    180deg,
+    var(--foreground) 60%,
+    color-mix(in srgb, var(--foreground) 55%, var(--background))
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-outline {
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--foreground) 35%, transparent);
+  color: transparent;
+}
+
+.tabular-fa {
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------- Marquee ---------------------------------- */
+
+@keyframes marquee-rtl {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee-rtl 30s linear infinite;
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin-slow {
+  animation: spin-slow 22s linear infinite;
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+.animate-float {
+  animation: float-y 7s ease-in-out infinite;
+}
+
+/* --------------------------------- Effects --------------------------------- */
+
+.glow-accent {
+  box-shadow:
+    0 0 24px -6px color-mix(in srgb, var(--accent) 60%, transparent),
+    0 0 64px -12px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.card-hover {
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.4s ease,
+    box-shadow 0.5s ease;
+}
+.card-hover:hover {
+  transform: translateY(-6px);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  box-shadow: 0 24px 48px -24px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  right: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-underline:hover::after,
+.link-underline[data-active="true"]::after {
+  width: 100%;
+}
+
+/* ---------------------------------- Print ----------------------------------- */
+/* چاپ رزومه — جایگزین سبک و سریع WeasyPrint/xhtml2pdf */
+
+@media print {
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+  .noise::after {
+    display: none !important;
+  }
+  .resume-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    background: #fff !important;
+    color: #111 !important;
+  }
+  @page {
+    margin: 12mm;
+  }
+}
