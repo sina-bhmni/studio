@@ -39,12 +39,42 @@ export const PROJECT_CATEGORIES: Record<string, string> = {
 
 /* ---------------------------------- Queries --------------------------------- */
 
+/**
+ * کوئری‌های خواندنی عمومی (Footer، صفحه‌ی اصلی، لیست‌ها) گاهی هنگام build
+ * یا prerender استاتیک اجرا می‌شوند — جایی که اگر دیتابیس هنوز migrate
+ * نشده باشد (کد خطای پستگرس ۴۲P۰۱: جدول وجود ندارد)، کل build باید کرش
+ * نکند. فقط همین یک نوع خطا را نادیده می‌گیریم و آرایه‌ی خالی برمی‌گردانیم؛
+ * هر خطای دیگر (مثلاً قطعی واقعی اتصال در زمان ترافیک واقعی) همچنان
+ * throw می‌شود تا مخفی نماند.
+ */
+function isUndefinedTableError(err: unknown): boolean {
+  if (typeof err !== "object" || err === null) return false;
+  const code = (err as { code?: string }).code;
+  if (code === "42P01") return true;
+  const cause = (err as { cause?: unknown }).cause;
+  if (typeof cause === "object" && cause !== null) {
+    return (cause as { code?: string }).code === "42P01";
+  }
+  return false;
+}
+
+async function safeQuery<T>(query: Promise<T[]>): Promise<T[]> {
+  try {
+    return await query;
+  } catch (err) {
+    if (isUndefinedTableError(err)) return [];
+    throw err;
+  }
+}
+
 export async function getMembers(): Promise<TeamMember[]> {
-  return db
-    .select()
-    .from(teamMembers)
-    .where(eq(teamMembers.isActive, true))
-    .orderBy(asc(teamMembers.order));
+  return safeQuery(
+    db
+      .select()
+      .from(teamMembers)
+      .where(eq(teamMembers.isActive, true))
+      .orderBy(asc(teamMembers.order)),
+  );
 }
 
 export async function getMemberBySlug(slug: string) {
@@ -114,18 +144,23 @@ export type ProjectWithTeam = Project & {
 };
 
 export async function getProjects(): Promise<ProjectWithTeam[]> {
-  const projectRows = await db.select().from(projects).orderBy(asc(projects.order));
-  const pmRows = await db
-    .select({ pm: projectMembers, member: teamMembers })
-    .from(projectMembers)
-    .innerJoin(teamMembers, eq(projectMembers.memberId, teamMembers.id));
+  try {
+    const projectRows = await db.select().from(projects).orderBy(asc(projects.order));
+    const pmRows = await db
+      .select({ pm: projectMembers, member: teamMembers })
+      .from(projectMembers)
+      .innerJoin(teamMembers, eq(projectMembers.memberId, teamMembers.id));
 
-  return projectRows.map((p) => ({
-    ...p,
-    team: pmRows
-      .filter((r) => r.pm.projectId === p.id)
-      .map((r) => ({ member: r.member, roleInProject: r.pm.roleInProject })),
-  }));
+    return projectRows.map((p) => ({
+      ...p,
+      team: pmRows
+        .filter((r) => r.pm.projectId === p.id)
+        .map((r) => ({ member: r.member, roleInProject: r.pm.roleInProject })),
+    }));
+  } catch (err) {
+    if (isUndefinedTableError(err)) return [];
+    throw err;
+  }
 }
 
 export async function getFeaturedProjects(): Promise<ProjectWithTeam[]> {
@@ -134,15 +169,17 @@ export async function getFeaturedProjects(): Promise<ProjectWithTeam[]> {
 }
 
 export async function getServices() {
-  return db.select().from(services).orderBy(asc(services.order));
+  return safeQuery(db.select().from(services).orderBy(asc(services.order)));
 }
 
 export async function getTestimonials() {
-  return db
-    .select()
-    .from(testimonials)
-    .where(eq(testimonials.isVisible, true))
-    .orderBy(asc(testimonials.order));
+  return safeQuery(
+    db
+      .select()
+      .from(testimonials)
+      .where(eq(testimonials.isVisible, true))
+      .orderBy(asc(testimonials.order)),
+  );
 }
 
 export async function getInquiries() {

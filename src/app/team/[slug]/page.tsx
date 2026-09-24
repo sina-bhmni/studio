@@ -37,11 +37,20 @@ import { toFa } from "@/lib/format";
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
-  const members = await db
-    .select({ slug: teamMembers.slug })
-    .from(teamMembers)
-    .orderBy(asc(teamMembers.order));
-  return members.map((m) => ({ slug: m.slug }));
+  // اگر دیتابیس هنوز جدول‌هایش ساخته نشده (مثلاً اولین build روی یک محیط
+  // تازه، قبل از اجرای npm run db:push)، به‌جای کرش کردن کل build، فقط
+  // پیش‌سازی استاتیک این صفحات را رد می‌کنیم — صفحات همچنان به‌صورت
+  // پویا (on-demand) در دسترس خواهند بود، فقط از cache ساخته‌شده در build
+  // بهره نمی‌برند تا وقتی دیتابیس واقعاً آماده شود.
+  try {
+    const members = await db
+      .select({ slug: teamMembers.slug })
+      .from(teamMembers)
+      .orderBy(asc(teamMembers.order));
+    return members.map((m) => ({ slug: m.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
