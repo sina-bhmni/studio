@@ -69,8 +69,6 @@ async function safeQuery<T>(query: Promise<T[]>): Promise<T[]> {
   }
 }
 
-<<<<<<< HEAD
-=======
 /** مقادیر پیش‌فرض تنظیمات سایت — وقتی جدول هنوز ساخته نشده یا ردیفی ثبت نشده. */
 const DEFAULT_SETTINGS: SiteSettings = {
   id: 1,
@@ -100,7 +98,6 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   return rows[0] ?? DEFAULT_SETTINGS;
 }
 
->>>>>>> 62ab367 (fix admin panel)
 export async function getMembers(): Promise<TeamMember[]> {
   return safeQuery(
     db
