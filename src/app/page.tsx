@@ -10,19 +10,26 @@ import {
   getFeaturedProjects,
   getMembers,
   getTestimonials,
+  getSiteSettings,
 } from "@/lib/data";
 
+// این صفحه از چند جدول قابل‌ویرایش در پنل مدیریت می‌خواند (تنظیمات سایت،
+// خدمات، پروژه‌ها، اعضا، نظرات) — بدون force-dynamic، Next.js آن را در
+// build استاتیک می‌کند و تغییرات پنل ادمین تا دیپلوی بعدی دیده نمی‌شوند.
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
-  const [services, featuredProjects, members, testimonials] = await Promise.all([
+  const [services, featuredProjects, members, testimonials, settings] = await Promise.all([
     getServices(),
     getFeaturedProjects(),
     getMembers(),
     getTestimonials(),
+    getSiteSettings(),
   ]);
 
   return (
     <>
-      <Hero />
+      <Hero title={settings.heroTitle} description={settings.heroDescription} />
       <Marquee
         items={[
           "طراحی رابط کاربری",

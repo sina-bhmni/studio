@@ -3,7 +3,13 @@ import { ArrowLeft, MousePointer2 } from "lucide-react";
 import { WordReveal, Reveal } from "@/components/reveal";
 import { StatCounter } from "@/components/stat-counter";
 
-export function Hero() {
+export function Hero({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
   return (
     <section id="top" className="relative overflow-hidden pt-36 pb-10 sm:pt-44">
       {/* هاله‌های نور پس‌زمینه */}
@@ -37,21 +43,12 @@ export function Hero() {
 
         {/* تیتر غول‌پیکر */}
         <h1 className="max-w-5xl text-[13.5vw] font-black leading-[1.15] tracking-tight sm:text-7xl lg:text-[86px]">
-          <WordReveal text="ایده‌های شما،" delay={0.05} />
-          <br />
-          <span className="text-accent">
-            <WordReveal text="تجربه‌های دیجیتال" delay={0.25} />
-          </span>{" "}
-          <WordReveal text="ماندگار" delay={0.5} />
+          <WordReveal text={title} />
         </h1>
 
         <div className="mt-10 flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
           <Reveal delay={0.35} className="max-w-xl">
-            <p className="text-lg leading-9 text-muted">
-              ما چهار نفریم؛ یک طراح، دو توسعه‌دهنده و یک استراتژیست. در استودیو
-              نوا برندها را می‌شنویم، برایشان قصه می‌سازیم و آن قصه را به
-              وب‌سایتی سریع، امن و خوش‌ساخت تبدیل می‌کنیم.
-            </p>
+            <p className="text-lg leading-9 text-muted">{description}</p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
                 href="/contact"

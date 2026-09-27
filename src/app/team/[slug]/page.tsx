@@ -36,6 +36,11 @@ import { toFa } from "@/lib/format";
 
 type Props = { params: Promise<{ slug: string }> };
 
+// این صفحه پروفایل تک‌تک اعضا را از دیتابیس می‌خواند که از پنل ادمین قابل
+// ویرایش است. بدون force-dynamic، صفحاتی که در generateStaticParams ساخته
+// شده‌اند در build کش می‌شوند و ویرایش بعدی بیوگرافی/عکس دیده نمی‌شود.
+export const dynamic = "force-dynamic";
+
 export async function generateStaticParams() {
   // اگر دیتابیس هنوز جدول‌هایش ساخته نشده (مثلاً اولین build روی یک محیط
   // تازه، قبل از اجرای npm run db:push)، به‌جای کرش کردن کل build، فقط

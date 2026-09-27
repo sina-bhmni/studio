@@ -13,6 +13,7 @@ import {
   services,
   testimonials,
   contactRequests,
+  siteSettings,
 } from "./schema";
 
 async function seed() {
@@ -271,6 +272,12 @@ async function seed() {
   await db.insert(contactRequests).values([
     { name: "نمونه — شرکت آوات", email: "info@avat.example", phone: "۰۹۱۲۳۴۵۶۷۸۹", projectType: "طراحی وب‌سایت", budget: "۵۰ تا ۱۰۰ میلیون تومان", message: "سلام، برای بازطراحی وب‌سایت شرکتی‌مان به دنبال یک تیم حرفه‌ای هستیم. لطفاً برای جلسه‌ی اولیه هماهنگ کنید.", status: "pending" },
   ]);
+
+  /* ------------------------------ Site settings ------------------------------ */
+  // این بخش را عمداً delete نمی‌کنیم — اگر ادمین از پنل تنظیمات یا رمز عبور
+  // را تغییر داده باشد، seed دوباره نباید آن را پاک کند؛ فقط اگر ردیفی
+  // اصلاً وجود نداشته باشد، مقادیر پیش‌فرض را می‌سازیم.
+  await db.insert(siteSettings).values({ id: 1 }).onConflictDoNothing();
 
   console.log("✅ Seed کامل شد!");
   process.exit(0);

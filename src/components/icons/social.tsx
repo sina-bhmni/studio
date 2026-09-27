@@ -56,6 +56,14 @@ export function MailIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function TelegramIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...props}>
+      <path d="M21.94 4.5 18.6 20.13c-.25 1.13-.9 1.4-1.83.87l-5.06-3.73-2.44 2.35c-.27.27-.5.5-1.02.5l.36-5.16 9.4-8.5c.41-.36-.09-.57-.63-.2L6.02 12.7l-5.02-1.57c-1.09-.34-1.1-1.09.23-1.61L20.6 3.24c.91-.34 1.7.22 1.34 1.26Z" />
+    </svg>
+  );
+}
+
 const MAP: Record<string, (props: SVGProps<SVGSVGElement>) => ReactElement> = {
   github: GithubIcon,
   linkedin: LinkedinIcon,
@@ -63,6 +71,7 @@ const MAP: Record<string, (props: SVGProps<SVGSVGElement>) => ReactElement> = {
   dribbble: DribbbleIcon,
   twitter: XIcon,
   x: XIcon,
+  telegram: TelegramIcon,
   email: MailIcon,
 };
 
@@ -73,6 +82,7 @@ export const PLATFORM_LABELS: Record<string, string> = {
   dribbble: "دریبل",
   twitter: "ایکس",
   x: "ایکس",
+  telegram: "تلگرام",
   email: "ایمیل",
 };
 

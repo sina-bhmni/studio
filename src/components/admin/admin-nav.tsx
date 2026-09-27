@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Inbox, Users2, Briefcase, Sparkles, MessageSquareQuote, LogOut } from "lucide-react";
+import { Inbox, Users2, Briefcase, Sparkles, MessageSquareQuote, Settings, LogOut } from "lucide-react";
 import { logoutAction } from "@/app/admin/actions";
 
 const TABS = [
@@ -8,6 +8,7 @@ const TABS = [
   { href: "/admin/projects", label: "پروژه‌ها", icon: Briefcase },
   { href: "/admin/services", label: "خدمات", icon: Sparkles },
   { href: "/admin/testimonials", label: "نظرات مشتری", icon: MessageSquareQuote },
+  { href: "/admin/settings", label: "تنظیمات", icon: Settings },
 ] as const;
 
 export function AdminNav({ active }: { active: (typeof TABS)[number]["href"] }) {

@@ -1,23 +1,54 @@
 import type { Metadata } from "next";
-import { Mail, MapPin, Clock, MessageCircleQuestion, ShieldCheck } from "lucide-react";
+import { Mail, MapPin, Clock, Phone, MessageCircleQuestion, ShieldCheck } from "lucide-react";
 import { ContactForm } from "@/components/contact-form";
 import { Faq } from "@/components/faq";
 import { Reveal, WordReveal } from "@/components/reveal";
 import { SocialIcon } from "@/components/icons/social";
+import { getSiteSettings } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "تماس و درخواست پروژه",
   description:
-    "با استودیو نوا در تماس باشید — فرم درخواست پروژه، ایمیل و پاسخ به سوالات پرتکرار.",
+    "با ما در تماس باشید — فرم درخواست پروژه، ایمیل و پاسخ به سوالات پرتکرار.",
 };
 
-const INFO = [
-  { icon: Mail, title: "ایمیل", value: "hello@nova.studio", ltr: true },
-  { icon: MapPin, title: "دفتر مرکزی", value: "تهران، خیابان ولیعصر، کوچه‌ی هنر، پلاک ۱۲", ltr: false },
-  { icon: Clock, title: "ساعات پاسخ‌گویی", value: "شنبه تا چهارشنبه — ۹ تا ۱۸", ltr: false },
-];
+// اطلاعات تماس و شبکه‌های اجتماعی از تنظیمات پنل ادمین خوانده می‌شوند —
+// بدون force-dynamic این صفحه استاتیک می‌شد و تغییرات ادمین دیده نمی‌شدند.
+export const dynamic = "force-dynamic";
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getSiteSettings();
+
+  const info = [
+    settings.contactEmail && {
+      icon: Mail,
+      title: "ایمیل",
+      value: settings.contactEmail,
+      ltr: true,
+    },
+    settings.contactPhone && {
+      icon: Phone,
+      title: "شماره تماس",
+      value: settings.contactPhone,
+      ltr: true,
+    },
+    settings.contactAddress && {
+      icon: MapPin,
+      title: "دفتر مرکزی",
+      value: settings.contactAddress,
+      ltr: false,
+    },
+    { icon: Clock, title: "ساعات پاسخ‌گویی", value: "شنبه تا چهارشنبه — ۹ تا ۱۸", ltr: false },
+  ].filter((x): x is { icon: typeof Mail; title: string; value: string; ltr: boolean } => Boolean(x));
+
+  const socials = [
+    { platform: "instagram", href: settings.socialInstagram },
+    { platform: "telegram", href: settings.socialTelegram },
+    { platform: "linkedin", href: settings.socialLinkedin },
+    { platform: "github", href: settings.socialGithub },
+    { platform: "x", href: settings.socialX },
+  ].filter((s): s is { platform: string; href: string } => Boolean(s.href));
+
   return (
     <div className="mx-auto max-w-7xl px-5 pt-36 pb-24 sm:px-8 sm:pt-44">
       {/* هدر */}
@@ -50,7 +81,7 @@ export default function ContactPage() {
 
         {/* اطلاعات تماس */}
         <div className="flex flex-col gap-5">
-          {INFO.map((item, i) => (
+          {info.map((item, i) => (
             <Reveal key={item.title} delay={0.15 + i * 0.08}>
               <div className="card-hover flex items-start gap-4 rounded-2xl border border-border bg-card p-6">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
@@ -71,23 +102,27 @@ export default function ContactPage() {
           ))}
 
           {/* شبکه‌های اجتماعی */}
-          <Reveal delay={0.4}>
-            <div className="rounded-2xl border border-border bg-card p-6">
-              <h2 className="mb-4 font-extrabold">ما را دنبال کنید</h2>
-              <div className="flex gap-2.5">
-                {["instagram", "linkedin", "github", "dribbble"].map((p) => (
-                  <a
-                    key={p}
-                    href="#"
-                    aria-label={p}
-                    className="flex h-11 w-11 items-center justify-center rounded-full border border-border text-muted transition-all duration-300 hover:border-accent hover:text-accent"
-                  >
-                    <SocialIcon platform={p} className="h-4.5 w-4.5" />
-                  </a>
-                ))}
+          {socials.length > 0 && (
+            <Reveal delay={0.4}>
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <h2 className="mb-4 font-extrabold">ما را دنبال کنید</h2>
+                <div className="flex gap-2.5">
+                  {socials.map(({ platform, href }) => (
+                    <a
+                      key={platform}
+                      href={href}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={platform}
+                      className="flex h-11 w-11 items-center justify-center rounded-full border border-border text-muted transition-all duration-300 hover:border-accent hover:text-accent"
+                    >
+                      <SocialIcon platform={platform} className="h-4.5 w-4.5" />
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
-          </Reveal>
+            </Reveal>
+          )}
 
           {/* نشان امنیت */}
           <Reveal delay={0.45}>

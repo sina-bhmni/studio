@@ -2,16 +2,18 @@ import Link from "next/link";
 import { Sparkles, ArrowUp } from "lucide-react";
 import { getMembers } from "@/lib/data";
 import { SocialIcon } from "@/components/icons/social";
+import type { SiteSettings } from "@/db/schema";
 
-const SOCIALS = [
-  { platform: "github", label: "گیت‌هاب", href: "https://github.com" },
-  { platform: "linkedin", label: "لینکدین", href: "https://linkedin.com" },
-  { platform: "instagram", label: "اینستاگرام", href: "https://instagram.com" },
-  { platform: "dribbble", label: "دریبل", href: "https://dribbble.com" },
-];
-
-export async function Footer() {
+export async function Footer({ settings }: { settings: SiteSettings }) {
   const members = await getMembers();
+
+  const socials = [
+    { platform: "instagram", label: "اینستاگرام", href: settings.socialInstagram },
+    { platform: "telegram", label: "تلگرام", href: settings.socialTelegram },
+    { platform: "linkedin", label: "لینکدین", href: settings.socialLinkedin },
+    { platform: "github", label: "گیت‌هاب", href: settings.socialGithub },
+    { platform: "x", label: "ایکس", href: settings.socialX },
+  ].filter((s): s is { platform: string; label: string; href: string } => Boolean(s.href));
 
   return (
     <footer className="relative overflow-hidden border-t border-border bg-surface print:hidden">
@@ -23,26 +25,25 @@ export async function Footer() {
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-accent-foreground">
                 <Sparkles className="h-5 w-5" strokeWidth={1.8} />
               </span>
-              <span className="text-lg font-extrabold">استودیو نوا</span>
+              <span className="text-lg font-extrabold">{settings.siteName}</span>
             </div>
-            <p className="max-w-xs text-sm leading-7 text-muted">
-              آژانس خلاقیت دیجیتال چهارنفره — ما ایده‌ها را به تجربه‌های
-              دیجیتال ماندگار تبدیل می‌کنیم؛ سریع، امن و خوش‌ساخت.
-            </p>
-            <div className="flex gap-2">
-              {SOCIALS.map(({ platform, label, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={label}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted transition-all duration-300 hover:border-accent hover:text-accent"
-                >
-                  <SocialIcon platform={platform} className="h-4.5 w-4.5" />
-                </a>
-              ))}
-            </div>
+            <p className="max-w-xs text-sm leading-7 text-muted">{settings.tagline}</p>
+            {socials.length > 0 && (
+              <div className="flex gap-2">
+                {socials.map(({ platform, label, href }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={label}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted transition-all duration-300 hover:border-accent hover:text-accent"
+                  >
+                    <SocialIcon platform={platform} className="h-4.5 w-4.5" />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* دسترسی سریع */}
@@ -96,7 +97,7 @@ export async function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-xs text-muted sm:flex-row">
-          <p>© ۱۴۰۳ استودیو نوا — ساخته‌شده با وسواس و چای زیاد.</p>
+          <p>© ۱۴۰۳ {settings.siteName} — ساخته‌شده با وسواس و چای زیاد.</p>
           <p className="tracking-[0.3em]">NOVA® DIGITAL STUDIO</p>
         </div>
       </div>

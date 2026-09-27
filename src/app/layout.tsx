@@ -5,6 +5,7 @@ import Script from "next/script";
 import "./globals.css";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { getSiteSettings } from "@/lib/data";
 
 const vazir = Vazirmatn({
   subsets: ["arabic", "latin"],
@@ -12,15 +13,17 @@ const vazir = Vazirmatn({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "استودیو نوا — آژانس خلاقیت دیجیتال",
-    template: "%s | استودیو نوا",
-  },
-  description:
-    "استودیو نوا یک آژانس دیجیتال چهارنفره است: طراحی رابط کاربری، توسعه وب، برندینگ و استراتژی محتوا — با عشق به جزئیات و وسواس روی نتیجه.",
-  metadataBase: new URL("http://localhost:3000"),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    title: {
+      default: `${settings.siteName} — آژانس خلاقیت دیجیتال`,
+      template: `%s | ${settings.siteName}`,
+    },
+    description: settings.seoDescription,
+    metadataBase: new URL("http://localhost:3000"),
+  };
+}
 
 /** جلوگیری از فلش تم هنگام لود */
 const themeScript = `
@@ -37,7 +40,9 @@ const themeScript = `
 })();
 `;
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const settings = await getSiteSettings();
+
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
       <head>
@@ -50,9 +55,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body
         className={`${vazir.variable} font-sans noise bg-background text-foreground antialiased`}
       >
-        <Navbar />
+        <Navbar siteName={settings.siteName} />
         <main className="min-h-dvh">{children}</main>
-        <Footer />
+        <Footer settings={settings} />
       </body>
     </html>
   );

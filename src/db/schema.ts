@@ -170,8 +170,45 @@ export const contactRequests = pgTable("contact_requests", {
     .defaultNow(),
 });
 
+/**
+ * تنظیمات کلی سایت — یک ردیف تکی (singleton) که همیشه id=1 دارد و از پنل
+ * مدیریت (/admin/settings) ویرایش می‌شود: اسم سایت، متن بخش هیرو، اطلاعات
+ * تماس، لینک شبکه‌های اجتماعی، توضیحات سئو، و هش رمز پنل ادمین.
+ */
+export const siteSettings = pgTable("site_settings", {
+  id: integer("id").primaryKey().default(1),
+  siteName: varchar("site_name", { length: 120 }).notNull().default("استودیو نوا"),
+  tagline: varchar("tagline", { length: 300 })
+    .notNull()
+    .default("آژانس خلاقیت دیجیتال چهارنفره — ما ایده‌ها را به تجربه‌های دیجیتال ماندگار تبدیل می‌کنیم."),
+  heroTitle: varchar("hero_title", { length: 200 })
+    .notNull()
+    .default("ایده‌های شما، تجربه‌های دیجیتال ماندگار"),
+  heroDescription: text("hero_description")
+    .notNull()
+    .default(
+      "ما چهار نفریم؛ یک طراح، دو توسعه‌دهنده و یک استراتژیست. در استودیو نوا برندها را می‌شنویم، برایشان قصه می‌سازیم و آن قصه را به وب‌سایتی سریع، امن و خوش‌ساخت تبدیل می‌کنیم.",
+    ),
+  seoDescription: text("seo_description")
+    .notNull()
+    .default(
+      "استودیو نوا یک آژانس دیجیتال چهارنفره است: طراحی رابط کاربری، توسعه وب، برندینگ و استراتژی محتوا.",
+    ),
+  contactEmail: varchar("contact_email", { length: 160 }),
+  contactPhone: varchar("contact_phone", { length: 40 }),
+  contactAddress: varchar("contact_address", { length: 300 }),
+  socialInstagram: varchar("social_instagram", { length: 300 }),
+  socialTelegram: varchar("social_telegram", { length: 300 }),
+  socialLinkedin: varchar("social_linkedin", { length: 300 }),
+  socialGithub: varchar("social_github", { length: 300 }),
+  socialX: varchar("social_x", { length: 300 }),
+  adminPasswordHash: varchar("admin_password_hash", { length: 300 }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 /* ---------------------------------- Types ---------------------------------- */
 
+export type SiteSettings = typeof siteSettings.$inferSelect;
 export type TeamMember = typeof teamMembers.$inferSelect;
 export type Skill = typeof skills.$inferSelect;
 export type MemberSkill = typeof memberSkills.$inferSelect;

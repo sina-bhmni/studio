@@ -14,7 +14,7 @@ const LINKS = [
   { href: "/contact", label: "تماس" },
 ];
 
-export function Navbar() {
+export function Navbar({ siteName = "استودیو نوا" }: { siteName?: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -49,7 +49,7 @@ export function Navbar() {
             <Sparkles className="h-5 w-5" strokeWidth={1.8} />
           </span>
           <span className="flex flex-col leading-none">
-            <span className="text-lg font-extrabold tracking-tight">استودیو نوا</span>
+            <span className="text-lg font-extrabold tracking-tight">{siteName}</span>
             <span className="text-[10px] font-medium tracking-[0.35em] text-muted">
               NOVA STUDIO
             </span>

@@ -12,6 +12,7 @@ import {
   services,
   testimonials,
   contactRequests,
+  siteSettings,
   type TeamMember,
   type Project,
   type Skill,
@@ -20,6 +21,7 @@ import {
   type Experience,
   type Education,
   type Certification,
+  type SiteSettings,
 } from "@/db/schema";
 import { asc, desc, eq } from "drizzle-orm";
 
@@ -67,6 +69,38 @@ async function safeQuery<T>(query: Promise<T[]>): Promise<T[]> {
   }
 }
 
+<<<<<<< HEAD
+=======
+/** مقادیر پیش‌فرض تنظیمات سایت — وقتی جدول هنوز ساخته نشده یا ردیفی ثبت نشده. */
+const DEFAULT_SETTINGS: SiteSettings = {
+  id: 1,
+  siteName: "استودیو نوا",
+  tagline:
+    "آژانس خلاقیت دیجیتال چهارنفره — ما ایده‌ها را به تجربه‌های دیجیتال ماندگار تبدیل می‌کنیم.",
+  heroTitle: "ایده‌های شما، تجربه‌های دیجیتال ماندگار",
+  heroDescription:
+    "ما چهار نفریم؛ یک طراح، دو توسعه‌دهنده و یک استراتژیست. در استودیو نوا برندها را می‌شنویم، برایشان قصه می‌سازیم و آن قصه را به وب‌سایتی سریع، امن و خوش‌ساخت تبدیل می‌کنیم.",
+  seoDescription:
+    "استودیو نوا یک آژانس دیجیتال چهارنفره است: طراحی رابط کاربری، توسعه وب، برندینگ و استراتژی محتوا.",
+  contactEmail: "hello@nova.studio",
+  contactPhone: null,
+  contactAddress: "تهران، خیابان ولیعصر، کوچه‌ی هنر، پلاک ۱۲",
+  socialInstagram: null,
+  socialTelegram: null,
+  socialLinkedin: null,
+  socialGithub: null,
+  socialX: null,
+  adminPasswordHash: null,
+  updatedAt: new Date(),
+};
+
+/** همیشه یک آبجکت کامل برمی‌گرداند — حتی قبل از migrate یا seed شدن جدول. */
+export async function getSiteSettings(): Promise<SiteSettings> {
+  const rows = await safeQuery(db.select().from(siteSettings).where(eq(siteSettings.id, 1)));
+  return rows[0] ?? DEFAULT_SETTINGS;
+}
+
+>>>>>>> 62ab367 (fix admin panel)
 export async function getMembers(): Promise<TeamMember[]> {
   return safeQuery(
     db

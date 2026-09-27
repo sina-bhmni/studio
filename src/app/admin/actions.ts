@@ -33,7 +33,7 @@ export async function loginAction(
   }
 
   const password = formData.get("password");
-  if (typeof password !== "string" || !verifyPassword(password)) {
+  if (typeof password !== "string" || !(await verifyPassword(password))) {
     return { error: "رمز عبور اشتباه است." };
   }
 

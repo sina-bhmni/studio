@@ -1,13 +1,18 @@
-import { createHmac, timingSafeEqual } from "crypto";
+import { createHmac, timingSafeEqual, randomBytes, scryptSync } from "crypto";
 import { cookies } from "next/headers";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { siteSettings } from "@/db/schema";
 
 /**
- * احراز هویت ساده‌ی پنل مدیریت با کوکی امضاشده (HMAC)
- * رمز عبور از process.env.ADMIN_PASSWORD خوانده می‌شود — هاردکد نیست.
+ * احراز هویت ساده‌ی پنل مدیریت با کوکی امضاشده (HMAC).
+ * رمز عبور اولویتش این‌طوریه: اول هش ذخیره‌شده در دیتابیس (اگر از طریق
+ * پنل /admin/settings تغییر داده شده باشد)، وگرنه process.env.ADMIN_PASSWORD.
  */
 
 const COOKIE_NAME = "nova_admin";
 const MAX_AGE = 60 * 60 * 6; // ۶ ساعت
+const SCRYPT_KEYLEN = 64;
 
 function getSecret(): string {
   return (
@@ -17,20 +22,60 @@ function getSecret(): string {
   );
 }
 
-export function getAdminPassword(): string {
-  return process.env.ADMIN_PASSWORD ?? "nova-admin-1403";
-}
-
 function sign(payload: string): string {
   return createHmac("sha256", getSecret()).update(payload).digest("hex");
 }
 
-export function verifyPassword(candidate: string): boolean {
-  const expected = getAdminPassword();
+function hashPassword(password: string): string {
+  const salt = randomBytes(16).toString("hex");
+  const derived = scryptSync(password, salt, SCRYPT_KEYLEN).toString("hex");
+  return `${salt}:${derived}`;
+}
+
+function verifyHashedPassword(candidate: string, stored: string): boolean {
+  const [salt, hashHex] = stored.split(":");
+  if (!salt || !hashHex) return false;
+  const derived = scryptSync(candidate, salt, SCRYPT_KEYLEN);
+  const storedBuf = Buffer.from(hashHex, "hex");
+  if (derived.length !== storedBuf.length) return false;
+  return timingSafeEqual(derived, storedBuf);
+}
+
+function verifyEnvPassword(candidate: string): boolean {
+  const expected = process.env.ADMIN_PASSWORD ?? "nova-admin-1403";
   const a = Buffer.from(candidate);
   const b = Buffer.from(expected);
   if (a.length !== b.length) return false;
   return timingSafeEqual(a, b);
+}
+
+export async function verifyPassword(candidate: string): Promise<boolean> {
+  try {
+    const rows = await db
+      .select({ hash: siteSettings.adminPasswordHash })
+      .from(siteSettings)
+      .where(eq(siteSettings.id, 1))
+      .limit(1);
+    const stored = rows[0]?.hash;
+    if (stored) {
+      return verifyHashedPassword(candidate, stored);
+    }
+  } catch {
+    // جدول هنوز ساخته نشده یا خطای دیگر — به رمز env بازمی‌گردیم
+  }
+  return verifyEnvPassword(candidate);
+}
+
+/** رمز جدید را هش می‌کند و در دیتابیس ذخیره می‌کند (برای تغییر رمز از پنل). */
+export async function setAdminPassword(newPassword: string): Promise<void> {
+  const hash = hashPassword(newPassword);
+  await db
+    .insert(siteSettings)
+    .values({ id: 1, adminPasswordHash: hash })
+    .onConflictDoUpdate({
+      target: siteSettings.id,
+      set: { adminPasswordHash: hash, updatedAt: new Date() },
+    });
 }
 
 export async function createAdminSession(): Promise<void> {
